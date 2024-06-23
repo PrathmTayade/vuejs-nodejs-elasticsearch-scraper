@@ -1,6 +1,11 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { validateFields } from "./utils.js";
+import {
+  addToElasticSearch,
+  validateFields,
+  writeToJsonFile,
+} from "./utils.js";
+import { CompanyDetails } from "../database/mysql.js";
 
 function extractCompanyDetails(companyDiv, baseUrl) {
   // Load the HTML content of the div
@@ -35,9 +40,10 @@ async function crawlLatestCompanies(url) {
 
     await writeToJsonFile(JSON.stringify(companies), "companies");
 
+    // ! Select No. of companies
     const companies10 = companies.slice(0, 2);
 
-    console.log("List of Latest Registered Companies:");
+    console.log("List of Latest Registered Companies:", companies.length);
     console.log(companies10);
 
     const companiesDetails = [];
@@ -45,7 +51,14 @@ async function crawlLatestCompanies(url) {
     companies10.forEach(async (company) => {
       try {
         const companyDetail = await crawlCompany(company.companyLink);
-        companiesDetails.push(companyDetail);
+        if (companyDetail) {
+          // add to db
+          CompanyDetails.create(companyDetail);
+          const doc = await addToElasticSearch("clients", companyDetail);
+          console.log("Company added to database:", companyDetail.name);
+          console.log("Company added to Elasticsearch:", doc._id);
+          companiesDetails.push(companyDetail);
+        }
       } catch (error) {
         console.error("Error crawling company:", error);
       }
@@ -57,8 +70,7 @@ async function crawlLatestCompanies(url) {
   }
 }
 
-// Crawl Company
-
+// Crawl Company Details
 async function crawlCompany(url) {
   console.log("Crawling page:", url);
   const response = await axios.get(url);
@@ -133,10 +145,12 @@ async function crawlCompany(url) {
   console.log(companyDetails);
   return companyDetails;
 }
+
 // base url of companies
 const baseUrl = "https://www.companydetails.in";
 
-// crawlLatestCompanies(baseUrl);
-crawlCompany(
-  "https://www.companydetails.in/company/a-s-event-management-services-private-limited"
-);
+await crawlLatestCompanies(baseUrl);
+
+// crawlCompany(
+//   "https://www.companydetails.in/company/a-s-event-management-services-private-limited"
+// );

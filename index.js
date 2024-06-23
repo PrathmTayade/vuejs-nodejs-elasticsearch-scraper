@@ -2,18 +2,18 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
-import ApiRoutes from "./routes";
+import ApiRoutes from "./routes/routes.js";
+import asyncHandler from "express-async-handler";
+import errorHandler from "./middleware/errorHandler.js";
 
 // Database connection
-
 
 // Express
 const app = express();
 
 app.use(morgan("dev"));
 app.use(cors());
-app.use(express.static("public"));
-
+// app.use(express.static("public"));
 
 app.use(express.json());
 
@@ -25,6 +25,8 @@ app.get("/health", async (req, res) => {
 // api routes
 app.use("/api", ApiRoutes);
 
+// error handler
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Your server available at http://localhost:3000");

@@ -1,4 +1,5 @@
 import fs from "fs";
+import esClient from "../database/elasticsearch";
 
 export async function writeToJsonFile(jsonContent, fileName) {
   console.log("Writing to json file");
@@ -23,4 +24,15 @@ export function validateFields(cin, pin) {
     };
   }
   return null;
+}
+
+export async function addToElasticSearch(index, data) {
+  try {
+    const doc = await esClient.create({ index, document: data });
+    // console.log(`Added to ES ${doc._id}, ${doc.result}`);
+    return doc;
+  } catch (error) {
+    console.error("Error adding document to Elasticsearch:", error);
+    return null;
+  }
 }
