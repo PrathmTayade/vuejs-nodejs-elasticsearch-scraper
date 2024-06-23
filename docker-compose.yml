@@ -1,0 +1,31 @@
+services:
+  # MySQL service
+  mysql:
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "db"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # Elasticsearch service
+  elasticsearch:
+    image: elasticsearch:latest
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+    ports:
+      - 9200:9200
+
+  # Your Node.js application service
+  your-app:
+    build: .  # Replace with the path to your Node.js application directory
+    restart: unless-stopped
+    volumes:
+      - ./:/app  # Mount your application directory into the container
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data: {}  # Persistent storage for MySQL data
