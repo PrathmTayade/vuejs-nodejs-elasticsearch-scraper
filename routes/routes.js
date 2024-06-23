@@ -20,7 +20,7 @@ import {
 
 const router = Router();
 
-// db
+// db apis
 router.get("/clients", asyncHandler(listClients));
 router.post("/clients", asyncHandler(createClient));
 
@@ -30,7 +30,7 @@ router.delete("/clients/:id", asyncHandler(deleteClient));
 
 // router.get("/clients/search", searchClients);
 
-// elasticsearch test
+// elasticsearch test apis
 router.get(
   "/es/ping",
   asyncHandler(async function (req, res) {
@@ -71,7 +71,8 @@ router.delete("/es/posts", async (res, req) => {
   res.send(result);
 });
 
-// ElasticSearch Client
+// ElasticSearch Client apis
+
 // clients?q=[term]	Search for a client (based on id/ name/ CIN/ email)
 router.route("/es/clients/search").get(esSearchClients);
 

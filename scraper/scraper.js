@@ -52,8 +52,8 @@ async function crawlLatestCompanies(url) {
       try {
         const companyDetail = await crawlCompany(company.companyLink);
         if (companyDetail) {
-          // add to db
-          CompanyDetails.create(companyDetail);
+          //! add to db
+          // CompanyDetails.create(companyDetail);
           const doc = await addToElasticSearch("clients", companyDetail);
           console.log("Company added to database:", companyDetail.name);
           console.log("Company added to Elasticsearch:", doc._id);

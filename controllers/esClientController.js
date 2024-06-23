@@ -120,7 +120,7 @@ const searchClients = asyncHandler(async (req, res) => {
       query: {
         multi_match: {
           query: searchTerm,
-          fields: ["id", "name", "CIN", "email"],
+          fields: ["id", "name", "cin", "email"],
         },
       },
     },
