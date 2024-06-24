@@ -3,14 +3,23 @@
     <h1>{{ isEditing ? 'Edit Client' : 'Create Client' }}</h1>
     <form @submit.prevent="submitClient">
       <!-- Client form fields -->
-      <!-- The same form fields as before -->
       <div class="mb-3">
         <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" v-model="client.name" required />
       </div>
       <div class="mb-3">
-        <label for="cin" class="form-label">CIN</label>
-        <input type="text" class="form-control" id="cin" v-model="client.cin" required />
+        <label for="cin" class="form-label">CIN (21 characters)</label>
+        <input
+          type="text"
+          class="form-control"
+          id="cin"
+          v-model="client.cin"
+          :maxlength="21"
+          pattern="[A-Z0-9]{21}"
+          title="CIN must be exactly 21 characters and alphanumeric (uppercase letters and digits)."
+          required
+        />
+        <small v-if="!isCinValid" class="text-danger">CIN must be exactly 21 characters.</small>
       </div>
       <div class="mb-3">
         <label for="status" class="form-label">Status</label>
@@ -25,8 +34,18 @@
         <input type="email" class="form-control" id="email" v-model="client.email" required />
       </div>
       <div class="mb-3">
-        <label for="pin" class="form-label">PIN</label>
-        <input type="text" class="form-control" id="pin" v-model="client.pin" required />
+        <label for="pin" class="form-label">PIN (6 digits)</label>
+        <input
+          type="text"
+          class="form-control"
+          id="pin"
+          v-model="client.pin"
+          :maxlength="6"
+          pattern="[0-9]{6}"
+          title="PIN must be exactly 6 digits."
+          required
+        />
+        <small v-if="!isPinValid" class="text-danger">PIN must be exactly 6 digits.</small>
       </div>
 
       <!-- Directors section -->
@@ -105,7 +124,9 @@ export default {
         pin: '',
         directors: []
       },
-      isEditing: true
+      isEditing: true,
+      isCinValid: true,
+      isPinValid: true
     }
   },
   compatConfig: { MODE: 3 },
@@ -122,18 +143,24 @@ export default {
       })
     },
     submitClient() {
-      const url = this.isEditing
-        ? `${apiURL}/api/es/clients/${this.$route.params.id}`
-        : `${apiURL}/api/es/clients`
-      const method = this.isEditing ? 'put' : 'post'
+      // Validate CIN and PIN
+      this.isCinValid = this.client.cin.length === 21
+      this.isPinValid = /^\d{6}$/.test(this.client.pin)
 
-      axios[method](url, this.client)
-        .then(() => {
-          this.$router.push('/')
-        })
-        .catch((error) => {
-          console.error('There was an error submitting the client!', error)
-        })
+      if (this.isCinValid && this.isPinValid) {
+        const url = this.isEditing
+          ? `${apiURL}/api/es/clients/${this.$route.params.id}`
+          : `${apiURL}/api/es/clients`
+        const method = this.isEditing ? 'put' : 'post'
+
+        axios[method](url, this.client)
+          .then(() => {
+            this.$router.push('/')
+          })
+          .catch((error) => {
+            console.error('There was an error submitting the client!', error)
+          })
+      }
     },
     addDirector() {
       this.client.directors.push({

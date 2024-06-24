@@ -1,5 +1,6 @@
 import esClient from "../database/elasticsearch.js";
 import asyncHandler from "express-async-handler";
+import { validateFields } from "../lib/utils.js";
 
 async function createIndex(index) {
   try {
@@ -76,11 +77,23 @@ const listClients = asyncHandler(async (req, res) => {
 // Create a new client
 const createClient = asyncHandler(async (req, res) => {
   const clientData = req.body;
-  const doc = await esClient.index({
-    index: "clients",
-    body: clientData,
-  });
-  res.status(201).json(doc);
+
+  // Validate CIN and PIN
+  const validationError = validateFields(clientData.cin, clientData.pin);
+  if (validationError) {
+    return res.status(400).json({ error: validationError.error });
+  }
+
+  try {
+    const doc = await esClient.index({
+      index: "clients",
+      body: clientData,
+    });
+    res.status(201).json(doc);
+  } catch (error) {
+    console.error("Error creating client:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // Show one client with better errors
