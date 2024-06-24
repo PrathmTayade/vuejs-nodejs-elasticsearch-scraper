@@ -1,14 +1,15 @@
 <template>
   <div class="container mt-5">
     <h1>Clients</h1>
-    <button class="btn btn-primary mb-3" @click="createClient">Create New Client</button>
+    <button class="btn btn-success mb-3" @click="createClient">Create New Client</button>
     <div v-if="clients.length">
       <ul class="list-group mb-3">
         <li class="list-group-item" v-for="client in clients" :key="client.id">
-          <strong>Name:</strong> {{ client._source.name }}<br />
-          <strong>CIN:</strong> {{ client._source.cin }}<br />
-          <strong>Email:</strong> {{ client._source.email }}<br />
-          <router-link :to="`/clients/${client._id}`" class="btn btn-link"
+          <div><strong>Name:</strong> {{ client._source.name }}</div>
+          <div><strong>CIN:</strong> {{ client._source.cin }}</div>
+          <div><strong>Email:</strong> {{ client._source.email }}</div>
+
+          <router-link :to="`/clients/${client._id}`" class="btn btn-primary mt-2"
             >View Details</router-link
           >
         </li>

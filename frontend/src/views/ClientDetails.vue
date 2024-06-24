@@ -15,25 +15,25 @@
           <ul class="list-group-item" v-for="(director, index) in client.directors" :key="index">
             <strong>Name:</strong>
             {{
-              director.name
+              director.name || 'No Records.'
             }}<br />
             <strong>DIN:</strong>
             {{
-              director.din
+              director.din || 'No Records.'
             }}<br />
             <strong>Designation:</strong>
             {{
-              director.designation
+              director.designation || 'No Records.'
             }}<br />
             <strong>Appointment Date:</strong>
             {{
-              director.appointmentDate
+              director.appointmentDate || 'No Records.'
             }}
           </ul>
         </b-list-group>
 
-        <button @click="editClient" class="btn btn-secondary">Edit</button>
-        <button @click="deleteClient" class="btn btn-danger">Delete</button>
+        <button @click="editClient" class="btn btn-secondary m-2">Edit</button>
+        <button @click="deleteClient" class="btn btn-danger m-2">Delete</button>
       </div>
     </div>
   </div>
