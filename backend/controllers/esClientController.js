@@ -49,16 +49,28 @@ async function setCompaniesMapping() {
 
 // List all clients
 const listClients = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const from = (page - 1) * limit;
+
   const { hits } = await esClient.search({
     index: "clients",
     body: {
       query: {
         match_all: {},
       },
+      sort: { _score: "desc" },
+      from,
+      size: limit,
     },
   });
-  console.log(hits);
-  res.json(hits.hits);
+
+  const totalHits = hits.total.value;
+
+  res.json({
+    clients: hits.hits,
+    totalPages: Math.ceil(totalHits / limit),
+    currentPage: Number(page),
+  });
 });
 
 // Create a new client
@@ -91,6 +103,16 @@ const showClient = asyncHandler(async (req, res) => {
 const updateClient = asyncHandler(async (req, res) => {
   const clientId = req.params.id;
   const clientData = req.body;
+  console.log(clientId);
+  const exists = await esClient.exists({
+    index: "clients",
+    id: clientId,
+  });
+
+  if (!exists) {
+    return res.status(404).json({ message: "Client not found" });
+  }
+
   const doc = await esClient.update({
     index: "clients",
     id: clientId,
@@ -98,19 +120,30 @@ const updateClient = asyncHandler(async (req, res) => {
       doc: clientData,
     },
   });
-  res.json(doc.result);
+
+  res.json({ result: doc.result });
 });
 
 // Delete a client
 const deleteClient = asyncHandler(async (req, res) => {
   const clientId = req.params.id;
+
+  const exists = await esClient.exists({
+    index: "clients",
+    id: clientId,
+  });
+
+  if (!exists) {
+    return res.status(404).json({ message: "Client not found" });
+  }
+
   const doc = await esClient.delete({
     index: "clients",
     id: clientId,
   });
-  res.json(doc.result);
-});
 
+  res.json({ result: doc.result });
+});
 // Search for a client
 const searchClients = asyncHandler(async (req, res) => {
   const searchTerm = req.query.q;

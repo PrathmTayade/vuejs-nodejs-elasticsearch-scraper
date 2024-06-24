@@ -28,8 +28,18 @@ export function validateFields(cin, pin) {
 
 export async function addToElasticSearch(index, data) {
   try {
+    const exisitingDoc = await esClient.search({
+      index: "clients",
+      query: { match: { cin: data.cin } },
+    });
+
+    if (exisitingDoc.hits.hits.length >= 1) {
+      console.log("Document already exists in Elasticsearch.");
+      return;
+    }
+
     const doc = await esClient.index({ index, document: data });
-    // console.log(`Added to ES ${doc._id}, ${doc.result}`);
+    console.log("Company added to Elasticsearch:", doc._id);
     return doc;
   } catch (error) {
     console.error("Error adding document to Elasticsearch:", error);

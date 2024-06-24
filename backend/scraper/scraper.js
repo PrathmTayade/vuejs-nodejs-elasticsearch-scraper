@@ -41,7 +41,7 @@ async function crawlLatestCompanies(url) {
     await writeToJsonFile(JSON.stringify(companies), "companies");
 
     // ! Select No. of companies
-    const companies10 = companies.slice(0, 2);
+    const companies10 = companies.slice(0, 21);
 
     console.log("List of Latest Registered Companies:", companies.length);
     console.log(companies10);
@@ -54,10 +54,12 @@ async function crawlLatestCompanies(url) {
         if (companyDetail) {
           //! add to db
           // CompanyDetails.create(companyDetail);
-          const doc = await addToElasticSearch("clients", companyDetail);
           console.log("Company added to database:", companyDetail.name);
-          console.log("Company added to Elasticsearch:", doc._id);
-          companiesDetails.push(companyDetail);
+          const doc = await addToElasticSearch("clients", companyDetail);
+          if (doc) {
+            // store in array for future use
+            companiesDetails.push(companyDetail);
+          }
         }
       } catch (error) {
         console.error("Error crawling company:", error);
@@ -116,6 +118,7 @@ async function crawlCompany(url) {
 
   const pin = address.match(/\b\d{6}\b/) ? address.match(/\b\d{6}\b/)[0] : "";
 
+  // validate fields
   const validationError = validateFields(cin, pin);
   if (validationError) {
     return validationError;
@@ -146,7 +149,7 @@ async function crawlCompany(url) {
   return companyDetails;
 }
 
-// base url of companies
+// base url of companies prefer env
 const baseUrl = "https://www.companydetails.in";
 
 await crawlLatestCompanies(baseUrl);

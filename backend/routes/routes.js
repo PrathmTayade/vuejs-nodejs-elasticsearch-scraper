@@ -81,7 +81,7 @@ router.route("/es/clients/").get(esListClient).post(esCreateClinet);
 router
   .route("/es/clients/:id")
   .get(esShowClient)
-  .post(esUpdateClient)
+  .put(esUpdateClient)
   .delete(esDeleteClient);
 
 export default router;

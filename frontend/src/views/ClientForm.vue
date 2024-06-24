@@ -1,7 +1,8 @@
 <template>
   <div class="container mt-5">
-    <h1>{{ isEditing ? 'Edit Client' : 'Add Client' }}</h1>
-    <form @submit.prevent="saveClient">
+    <h1>Edit Client</h1>
+    <form @submit.prevent="updateClient">
+      <!-- Client form fields -->
       <div class="mb-3">
         <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" v-model="client.name" required />
@@ -26,38 +27,69 @@
         <label for="pin" class="form-label">PIN</label>
         <input type="text" class="form-control" id="pin" v-model="client.pin" required />
       </div>
+
+      <!-- Directors section -->
       <div class="mb-3">
         <label for="directors" class="form-label">Directors</label>
-        <input
-          type="text"
-          class="form-control"
-          id="directors"
-          v-model="newDirector"
-          placeholder="Add director"
-          @keyup.enter="addDirector"
-        />
-        <div class="mt-2">
-          <span
-            class="badge bg-secondary me-2"
-            v-for="(director, index) in client.directors"
-            :key="index"
-          >
-            {{ director }}
-            <button
-              type="button"
-              class="btn-close btn-close-white ms-1"
-              @click="removeDirector(index)"
-            ></button>
-          </span>
+        <div v-for="(director, index) in client.directors" :key="index" class="card mb-2">
+          <div class="card-body">
+            <div class="mb-3">
+              <label :for="'directorName' + index" class="form-label">Name</label>
+              <input
+                type="text"
+                class="form-control"
+                :id="'directorName' + index"
+                v-model="director.name"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label :for="'directorDIN' + index" class="form-label">DIN</label>
+              <input
+                type="text"
+                class="form-control"
+                :id="'directorDIN' + index"
+                v-model="director.din"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label :for="'directorDesignation' + index" class="form-label">Designation</label>
+              <input
+                type="text"
+                class="form-control"
+                :id="'directorDesignation' + index"
+                v-model="director.designation"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label :for="'directorAppointmentDate' + index" class="form-label"
+                >Appointment Date</label
+              >
+              <input
+                type="date"
+                class="form-control"
+                :id="'directorAppointmentDate' + index"
+                v-model="director.appointmentDate"
+                required
+              />
+            </div>
+            <button type="button" class="btn btn-danger" @click="removeDirector(index)">
+              Remove Director
+            </button>
+          </div>
         </div>
+        <button type="button" class="btn btn-primary" @click="addDirector">Add Director</button>
       </div>
-      <button type="submit" class="btn btn-primary">{{ isEditing ? 'Update' : 'Create' }}</button>
+
+      <button type="submit" class="btn btn-primary">Update</button>
     </form>
   </div>
 </template>
 
 <script>
-import { apiURL } from '@/lib/utils';
+import { apiURL } from '@/lib/utils'
 import axios from 'axios'
 
 export default {
@@ -71,16 +103,11 @@ export default {
         email: '',
         pin: '',
         directors: []
-      },
-      newDirector: '',
-      isEditing: false
+      }
     }
   },
   created() {
-    if (this.$route.params.id) {
-      this.isEditing = true
-      this.fetchClient()
-    }
+    this.fetchClient()
   },
   methods: {
     fetchClient() {
@@ -88,22 +115,23 @@ export default {
         this.client = response.data
       })
     },
-    saveClient() {
-      if (this.isEditing) {
-        axios.put(`${apiURL}/api/es/clients/${this.$route.params.id}`, this.client).then(() => {
-          this.$router.push('/')
+    updateClient() {
+      axios
+        .put(`${apiURL}/api/es/clients/${this.$route.params.id}`, this.client)
+        .then(() => {
+          this.$router.push(`/clients/${this.$route.params.id}`)
         })
-      } else {
-        axios.post(`${apiURL}/api/es/clients`, this.client).then(() => {
-          this.$router.push('/')
+        .catch((error) => {
+          console.error('There was an error updating the client!', error)
         })
-      }
     },
     addDirector() {
-      if (this.newDirector) {
-        this.client.directors.push(this.newDirector)
-        this.newDirector = ''
-      }
+      this.client.directors.push({
+        din: '',
+        name: '',
+        designation: '',
+        appointmentDate: ''
+      })
     },
     removeDirector(index) {
       this.client.directors.splice(index, 1)
