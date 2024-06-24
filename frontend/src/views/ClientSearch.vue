@@ -16,10 +16,10 @@
       <button type="submit" class="btn btn-primary">Search</button>
     </form>
 
-    <div class="mt-4" v-if="clients.length">
+    <div class="mt-4" v-if="clients.length > 0">
       <h2>Search Results</h2>
       <ul class="list-group">
-        <li class="list-group-item" v-for="client in clients" :key="client.id">
+        <li class="list-group-item" v-for="client in clients" :key="client._id">
           <div class="container d-flex flex-column gap-2">
             <strong>Name:</strong> {{ client._source.name }}<br />
             <strong>ID:</strong> {{ client._id }}<br />
@@ -32,6 +32,12 @@
         </li>
       </ul>
     </div>
+    <div v-else-if="searched && clients.length === 0" class="mt-2">
+      <p>No clients found matching "{{ searchTerm }}".</p>
+    </div>
+    <div v-else class="mt-2">
+      <p>Enter a search term to find clients.</p>
+    </div>
   </div>
 </template>
 
@@ -43,7 +49,8 @@ export default {
   data() {
     return {
       searchTerm: '',
-      clients: []
+      clients: [],
+      searched: false
     }
   },
   methods: {
@@ -52,6 +59,7 @@ export default {
         .get(`${apiURL}/api/es/clients/search`, { params: { q: this.searchTerm } })
         .then((response) => {
           this.clients = response.data
+          this.searched = true
         })
         .catch((error) => {
           console.error('There was an error searching for clients!', error)
@@ -60,3 +68,5 @@ export default {
   }
 }
 </script>
+
+<style scoped></style>

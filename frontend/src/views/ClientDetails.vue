@@ -13,10 +13,22 @@
         <p class="card-text"><strong>Directors:</strong></p>
         <b-list-group class="list-group">
           <ul class="list-group-item" v-for="(director, index) in client.directors" :key="index">
-            <strong>Name:</strong> {{ director.name }}<br />
-            <strong>DIN:</strong> {{ director.din }}<br />
-            <strong>Designation:</strong> {{ director.designation }}<br />
-            <strong>Appointment Date:</strong> {{ director.appointmentDate }}
+            <strong>Name:</strong>
+            {{
+              director.name
+            }}<br />
+            <strong>DIN:</strong>
+            {{
+              director.din
+            }}<br />
+            <strong>Designation:</strong>
+            {{
+              director.designation
+            }}<br />
+            <strong>Appointment Date:</strong>
+            {{
+              director.appointmentDate
+            }}
           </ul>
         </b-list-group>
 
@@ -56,15 +68,22 @@ export default {
       })
     },
     editClient() {
-      this.$router.push(`/clients/edit/${this.$route.params.id}`)
+      this.$router.push({
+        name: 'EditClient',
+        path: `/clients/edit/${this.$route.params.id}`
+      })
     },
     deleteClient() {
-      axios.delete(`${apiURL}/api/es/clients/${this.$route.params.id}`).then(() => {
-        this.fetchClients() // Refetch client
-
-        this.$router.push('/')
-        this.$message.success('Client deleted successfully!') // Display success message
-      })
+      try {
+        axios.delete(`${apiURL}/api/es/clients/${this.$route.params.id}`).then(() => {
+          alert('Client deleted successfully!')
+          this.$router.push('/')
+          this.$root.$emit('fetchClients')
+        })
+      } catch (error) {
+        console.error('Error deleting client:', error)
+        this.$message.error('An error occurred while deleting the client!')
+      }
     }
   }
 }

@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ClientForm from '@/views/ClientForm.vue'
 import ClientDetails from '@/views/ClientDetails.vue'
 import ClientList from '@/views/ClientList.vue'
-import ClientSearch from '@/components/ClientSearch.vue'
+import ClientSearch from '@/views/ClientSearch.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,7 +12,9 @@ const router = createRouter({
     { path: '/clients', redirect: '/' },
     { path: '/search', component: ClientSearch },
     { path: '/clients/new', component: ClientForm },
-    { path: '/clients/edit/:id', component: ClientForm },
+    { path: '/clients/edit/:id', component: ClientForm, name: 'EditClient' },
+    { path: '/clients/create', component: ClientForm, name: 'CreateClient' },
+
     { path: '/clients/:id', component: ClientDetails }
     // {
     //   path: '/about',

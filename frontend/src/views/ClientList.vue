@@ -1,6 +1,7 @@
 <template>
   <div class="container mt-5">
     <h1>Clients</h1>
+    <button class="btn btn-primary mb-3" @click="createClient">Create New Client</button>
     <div v-if="clients.length">
       <ul class="list-group mb-3">
         <li class="list-group-item" v-for="client in clients" :key="client.id">
@@ -49,6 +50,8 @@ export default {
       totalPages: 1
     }
   },
+  compatConfig: { MODE: 3 },
+
   created() {
     this.fetchClients(this.currentPage)
   },
@@ -66,6 +69,12 @@ export default {
         .catch((error) => {
           console.error('There was an error fetching the clients!', error)
         })
+    },
+    createClient() {
+      this.$router.push({
+        name: 'CreateClient',
+        path: '/clients/create'
+      })
     }
   }
 }

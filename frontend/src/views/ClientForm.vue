@@ -1,8 +1,9 @@
 <template>
   <div class="container mt-5">
-    <h1>Edit Client</h1>
-    <form @submit.prevent="updateClient">
+    <h1>{{ isEditing ? 'Edit Client' : 'Create Client' }}</h1>
+    <form @submit.prevent="submitClient">
       <!-- Client form fields -->
+      <!-- The same form fields as before -->
       <div class="mb-3">
         <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" v-model="client.name" required />
@@ -83,7 +84,7 @@
         <button type="button" class="btn btn-primary" @click="addDirector">Add Director</button>
       </div>
 
-      <button type="submit" class="btn btn-primary">Update</button>
+      <button type="submit" class="btn btn-primary">{{ isEditing ? 'Update' : 'Create' }}</button>
     </form>
   </div>
 </template>
@@ -103,11 +104,16 @@ export default {
         email: '',
         pin: '',
         directors: []
-      }
+      },
+      isEditing: true
     }
   },
+  compatConfig: { MODE: 3 },
   created() {
-    this.fetchClient()
+    this.isEditing = this.$route.name === 'EditClient'
+    if (this.isEditing) {
+      this.fetchClient()
+    }
   },
   methods: {
     fetchClient() {
@@ -115,14 +121,18 @@ export default {
         this.client = response.data
       })
     },
-    updateClient() {
-      axios
-        .put(`${apiURL}/api/es/clients/${this.$route.params.id}`, this.client)
+    submitClient() {
+      const url = this.isEditing
+        ? `${apiURL}/api/es/clients/${this.$route.params.id}`
+        : `${apiURL}/api/es/clients`
+      const method = this.isEditing ? 'put' : 'post'
+
+      axios[method](url, this.client)
         .then(() => {
-          this.$router.push(`/clients/${this.$route.params.id}`)
+          this.$router.push('/')
         })
         .catch((error) => {
-          console.error('There was an error updating the client!', error)
+          console.error('There was an error submitting the client!', error)
         })
     },
     addDirector() {
