@@ -6,6 +6,7 @@ import {
   writeToJsonFile,
 } from "./utils.js";
 import { CompanyDetails } from "../database/mysql.js";
+import "dotenv";
 
 function extractCompanyDetails(companyDiv, baseUrl) {
   // Load the HTML content of the div
@@ -150,10 +151,6 @@ async function crawlCompany(url) {
 }
 
 // base url of companies prefer env
-const baseUrl = "https://www.companydetails.in";
+const baseUrl = process.env.COMPANIES_BASE_URL;
 
 await crawlLatestCompanies(baseUrl);
-
-// crawlCompany(
-//   "https://www.companydetails.in/company/a-s-event-management-services-private-limited"
-// );
